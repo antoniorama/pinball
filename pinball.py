@@ -1,5 +1,10 @@
 import pygame, math, random
 
+# Colors
+PINK_RGB = (255,20,147)
+BLACK_RGB = (0,0,0)
+CYAN_RGB = (0,255,255)
+
 # Random module
 rand_range = [-1, 0, 1]
 
@@ -10,43 +15,43 @@ pygame.init()
 
 SCREEN = pygame.display.set_mode(SCREEN_SIZE)
 
-BALL = pygame.image.load('/Users/antoniorama/Desktop/LEIC/Scripts/pinball pygame/bola.png')
+BALL = pygame.image.load('./imgs/bola.png')
 vx, vy = 6, 6
 in_vx, in_vy = 6, 6
 ball_v = (vx, vy)
-WALLS = pygame.image.load('/Users/antoniorama/Desktop/LEIC/Scripts/pinball pygame/base.png')
+WALLS = pygame.image.load('base.png')
 
-LEFT_ARROW_1 = pygame.image.load('/Users/antoniorama/Desktop/LEIC/Scripts/pinball pygame/left_1.png')
-LEFT_ARROW_3= pygame.image.load('/Users/antoniorama/Desktop/LEIC/Scripts/pinball pygame/left_3_f.png')
+LEFT_ARROW_1 = pygame.image.load('left_1.png')
+LEFT_ARROW_3= pygame.image.load('left_3_f.png')
 
-RIGHT_ARROW_1 = pygame.image.load('/Users/antoniorama/Desktop/LEIC/Scripts/pinball pygame/right_1.png')
-RIGHT_ARROW_3 = pygame.image.load('/Users/antoniorama/Desktop/LEIC/Scripts/pinball pygame/right_3.png')
+RIGHT_ARROW_1 = pygame.image.load('right_1.png')
+RIGHT_ARROW_3 = pygame.image.load('right_3.png')
 
 OBS_1 = pygame.Rect(250,100,35,150)
 OBS_1_2 = pygame.Rect(350,100,35,150)
 OBS_1_SCORE = pygame.Rect(285,175,75,2)
-OBS_1_IMG, obs_1_img_cords = pygame.image.load('/Users/antoniorama/Desktop/LEIC/Scripts/pinball pygame/score_cross.png'), (292, 158)
+OBS_1_IMG, obs_1_img_cords = pygame.image.load('score_cross.png'), (292, 158)
 OBS_1_IMG = pygame.transform.scale(OBS_1_IMG, (50,50))
 
-OBS_2 = pygame.Rect(1000-350,100,35,150)
-OBS_2_2 = pygame.Rect(1000-250,100,35,150)
+OBS_2 = pygame.Rect(1000-350-35,100,35,150)
+OBS_2_2 = pygame.Rect(1000-250-35,100,35,150)
 OBS_2_SCORE = pygame.Rect(1000-350+35,175,75,2)
-OBS_2_IMG, obs_2_img_cords = OBS_1_IMG, (693,158)
+OBS_2_IMG, obs_2_img_cords = OBS_1_IMG, (693-35,158)
 OBS_2_IMG = pygame.transform.scale(OBS_2_IMG, (50,50))
 
 OBS_3 = pygame.Rect(475,150,50,50)
 
-OBS_4 = pygame.Rect(150,350,100,100)
+OBS_4 = pygame.Rect(150,350,125,125)
+BAR_WIDHT = 20
+OBS_4_IMG = pygame.Rect(OBS_4.x+BAR_WIDHT,OBS_4.y+BAR_WIDHT,OBS_4.width-2*BAR_WIDHT,OBS_4.height-2*BAR_WIDHT)
 
-OBS_5 = pygame.Rect(1000-OBS_4.x-OBS_4.width, OBS_4.y, OBS_4.width, OBS_4.height)
+OBS_5 = pygame.Rect(SCREEN_SIZE[0]-OBS_4.x-OBS_4.width, OBS_4.y, OBS_4.width, OBS_4.height)
+OBS_5_IMG = pygame.Rect(OBS_5.x+BAR_WIDHT,OBS_5.y+BAR_WIDHT,OBS_5.width-2*BAR_WIDHT,OBS_5.height-2*BAR_WIDHT)
 
-obs_list = [OBS_1, OBS_1_2, OBS_2, OBS_2_2, OBS_3, OBS_4, OBS_5]
+obs_list_pink = [OBS_1, OBS_1_2, OBS_2, OBS_2_2, OBS_3, OBS_4, OBS_5]
+obs_list_not_pink = [(OBS_4_IMG, CYAN_RGB),(OBS_5_IMG, CYAN_RGB)]
 score_obs_list = [(OBS_1_SCORE, 10), (OBS_2_SCORE, 10)]
 non_col_list = [(OBS_1_IMG, obs_1_img_cords), (OBS_2_IMG, obs_2_img_cords)]
-
-# Colors
-PINK_RGB = (255,20,147)
-BLACK_RGB = (0,0,0)
 
 # Text Variables
 
@@ -79,12 +84,11 @@ def draw_screen(ball, left_arrow, left_arrow_cords, right_arrow, right_arrow_cor
 #    pygame.draw.rect(SCREEN, PINK_RGB, rect_right_arrow_1, 1) # temp hitbox
 
     # Obstáculos
-    for obs in obs_list:
-        if obs == OBS_4 or obs == OBS_5:
-            pygame.draw.rect(SCREEN, PINK_RGB, obs, 20)
-        else:
-            pygame.draw.rect(SCREEN, PINK_RGB, obs)
+    for obs in obs_list_pink:
+        pygame.draw.rect(SCREEN, PINK_RGB, obs)
 
+    for obs in obs_list_not_pink:
+        pygame.draw.rect(SCREEN, obs[1], obs[0])
 
     for obs in non_col_list:
         SCREEN.blit(obs[0], obs[1])
@@ -124,7 +128,7 @@ def main():
             right_arrow = RIGHT_ARROW_3
             right_arrow_cords = (550,540)
 
-        # colisões
+        # Colisões
         if ball.left <= 60 or ball.right >= 1000-60: # colisão com a barra esquerda e a direita 
             vx = vx*-1 + random.choice(rand_range)            
             if vy > 0:
@@ -146,7 +150,7 @@ def main():
             vy = abs(vy)
 
         # Colisões com obstáculos
-        for obs in obs_list:
+        for obs in obs_list_pink:
             if ball.colliderect(obs):
                 if (negative(vx) <= ball.right - obs.left <= abs(vx) or negative(vx) <= ball.left - obs.right <= abs(vx)):
                     if vx < 0:
