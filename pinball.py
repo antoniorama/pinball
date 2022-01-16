@@ -18,7 +18,7 @@ pygame.display.set_caption('Pinball')
 SCREEN = pygame.display.set_mode(SCREEN_SIZE)
 pygame.init()
 
-BLUE_BACKGROUND = pygame.image.load('./imgs/light-blue-wallpaper.webp')
+BLUE_BACKGROUND = pygame.image.load('./imgs/light-blue-wallpaper.png')
 
 BALL = pygame.image.load('./imgs/bola.png')
 STEEL_BALL = pygame.image.load('./imgs/steel_ball.png')
