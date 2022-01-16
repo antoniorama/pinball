@@ -1,4 +1,8 @@
 import pygame, math, random
+from functions import negative as negative
+import functions 
+
+one_nine = ['1','2','3','4','5','6','7','8','9']
 
 # Colors
 PINK_RGB = (255,20,147)
@@ -11,31 +15,32 @@ rand_range = [-1, 0, 1]
 SCREEN_SIZE = (1000,600)
 pygame.display.set_caption('Pinball')
 
+SCREEN = pygame.display.set_mode(SCREEN_SIZE)
 pygame.init()
 
-SCREEN = pygame.display.set_mode(SCREEN_SIZE)
+BLUE_BACKGROUND = pygame.image.load('./imgs/light-blue-wallpaper.webp')
 
 BALL = pygame.image.load('./imgs/bola.png')
-vx, vy = 6, 6
-in_vx, in_vy = 6, 6
-ball_v = (vx, vy)
-WALLS = pygame.image.load('base.png')
+STEEL_BALL = pygame.image.load('./imgs/steel_ball.png')
+STEEL_BALL = pygame.transform.scale(STEEL_BALL, (40,45))
 
-LEFT_ARROW_1 = pygame.image.load('left_1.png')
-LEFT_ARROW_3= pygame.image.load('left_3_f.png')
+WALLS = pygame.image.load('./imgs/base.png')
 
-RIGHT_ARROW_1 = pygame.image.load('right_1.png')
-RIGHT_ARROW_3 = pygame.image.load('right_3.png')
+LEFT_ARROW_1 = pygame.image.load('./imgs/left_1.png')
+LEFT_ARROW_3= pygame.image.load('./imgs/left_3_f.png')
+
+RIGHT_ARROW_1 = pygame.image.load('./imgs/right_1.png')
+RIGHT_ARROW_3 = pygame.image.load('./imgs/right_3.png')
 
 OBS_1 = pygame.Rect(250,100,35,150)
 OBS_1_2 = pygame.Rect(350,100,35,150)
 OBS_1_SCORE = pygame.Rect(285,175,75,2)
-OBS_1_IMG, obs_1_img_cords = pygame.image.load('score_cross.png'), (292, 158)
+OBS_1_IMG, obs_1_img_cords = pygame.image.load('./imgs/score_cross.png'), (292, 158)
 OBS_1_IMG = pygame.transform.scale(OBS_1_IMG, (50,50))
 
 OBS_2 = pygame.Rect(1000-350-35,100,35,150)
 OBS_2_2 = pygame.Rect(1000-250-35,100,35,150)
-OBS_2_SCORE = pygame.Rect(1000-350+35,175,75,2)
+OBS_2_SCORE = pygame.Rect(1000-390+35,175,75,2)
 OBS_2_IMG, obs_2_img_cords = OBS_1_IMG, (693-35,158)
 OBS_2_IMG = pygame.transform.scale(OBS_2_IMG, (50,50))
 
@@ -50,24 +55,120 @@ OBS_5_IMG = pygame.Rect(OBS_5.x+BAR_WIDHT,OBS_5.y+BAR_WIDHT,OBS_5.width-2*BAR_WI
 
 obs_list_pink = [OBS_1, OBS_1_2, OBS_2, OBS_2_2, OBS_3, OBS_4, OBS_5]
 obs_list_not_pink = [(OBS_4_IMG, CYAN_RGB),(OBS_5_IMG, CYAN_RGB)]
-score_obs_list = [(OBS_1_SCORE, 10), (OBS_2_SCORE, 10)]
 non_col_list = [(OBS_1_IMG, obs_1_img_cords), (OBS_2_IMG, obs_2_img_cords)]
 
-# Text Variables
+# Fonts
+score_font = pygame.font.Font("freesansbold.ttf", 32)
+inside_box_font = pygame.font.Font("./fonts/PKMN-Pinball.ttf", 45)
+title_font = pygame.font.Font("./fonts/PKMN-Pinball.ttf", 75)
+button_font = pygame.font.Font("./fonts/PKMN-Pinball.ttf", 55)
+author_font = pygame.font.Font("freesansbold.ttf", 16)
+final_score_font = pygame.font.Font("./fonts/PKMN-Pinball.ttf", 25)
 
-# Score
-score = 0
-game_font = pygame.font.Font("freesansbold.ttf", 32)
 
-def negative(x):
-    if x <= 0:
-        return x
-    else:
-        return -1 * x 
+def main_menu():
 
-def draw_screen(ball, left_arrow, left_arrow_cords, right_arrow, right_arrow_cords):
-    global score
+    # Music
+    pygame.mixer.init()
+    pygame.mixer.music.load('./music/pinball_music.mp3')
+    pygame.mixer.music.play()
 
+    steel_ball_coords_play = (345,270)
+    steel_ball_coords_exit = (360,417)
+    steel_ball_coords = steel_ball_coords_play
+    while True:
+        SCREEN.blit(BLUE_BACKGROUND,(0,0))
+        SCREEN.blit(STEEL_BALL, steel_ball_coords)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+
+        # Title : 'PINBALL'
+        title = title_font.render(f"PinBall", True, PINK_RGB)
+        SCREEN.blit(title, (275,50))
+
+        # Play Button
+        play_button = button_font.render(f"play", True, PINK_RGB)
+        SCREEN.blit(play_button, (400,250))
+
+        # Exit Button
+        exit_button = button_font.render(f"exit", True, PINK_RGB)
+        SCREEN.blit(exit_button, (415,400))
+
+        # Author
+        author = author_font.render(f"by antoniorama", True, (0,0,0))
+        SCREEN.blit(author, (875,580))
+
+        # Button mechanics
+        keys_pressed = pygame.key.get_pressed()
+
+        if keys_pressed[pygame.K_DOWN]:
+            steel_ball_coords = steel_ball_coords_exit
+
+        if keys_pressed[pygame.K_UP]:
+            steel_ball_coords = steel_ball_coords_play
+
+        if (keys_pressed[pygame.K_RETURN] or keys_pressed[pygame.K_SPACE]) and steel_ball_coords == steel_ball_coords_play:
+            break
+
+        if (keys_pressed[pygame.K_RETURN] or keys_pressed[pygame.K_SPACE]) and steel_ball_coords == steel_ball_coords_exit:
+            pygame.quit()
+
+        pygame.display.update()
+
+def game_lost(final_score_n):
+    pygame.mixer.music.stop()
+    steel_ball_coords_play = (345,270)
+    steel_ball_coords_exit = (360,417)
+    steel_ball_coords = steel_ball_coords_play
+
+    while True:
+        SCREEN.blit(BLUE_BACKGROUND,(0,0))
+        SCREEN.blit(STEEL_BALL, steel_ball_coords)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+
+        # Title : 'Game Over'
+        title = title_font.render(f"GameOver", True, PINK_RGB)
+        SCREEN.blit(title, (200,50))
+
+        # Final Score
+        final_score = final_score_font.render(f"final score  {final_score_n}", True, PINK_RGB)
+        SCREEN.blit(final_score, (15,550))
+
+        # Play Button
+        play_button = button_font.render(f"menu", True, PINK_RGB)
+        SCREEN.blit(play_button, (400,250))
+
+        # Exit Button
+        exit_button = button_font.render(f"exit", True, PINK_RGB)
+        SCREEN.blit(exit_button, (415,400))
+
+        # Author
+        author = author_font.render(f"by antoniorama", True, (0,0,0))
+        SCREEN.blit(author, (875,580))
+
+        # Button mechanics
+        keys_pressed = pygame.key.get_pressed()
+
+        if keys_pressed[pygame.K_DOWN]:
+            steel_ball_coords = steel_ball_coords_exit
+
+        if keys_pressed[pygame.K_UP]:
+            steel_ball_coords = steel_ball_coords_play
+
+        if (keys_pressed[pygame.K_RETURN] or keys_pressed[pygame.K_SPACE]) and steel_ball_coords == steel_ball_coords_play:
+            main()
+
+        if (keys_pressed[pygame.K_RETURN] or keys_pressed[pygame.K_SPACE]) and steel_ball_coords == steel_ball_coords_exit:
+            pygame.quit()
+        
+        pygame.display.update()
+
+def draw_screen(ball, left_arrow, left_arrow_cords, right_arrow, right_arrow_cords, ind_left, ind_right, score):
     # Jogo básico, sem obstáculos
     SCREEN.fill((0,255,255))
     pygame.draw.rect(SCREEN, PINK_RGB, pygame.Rect(0,0,60,600)) # left bar
@@ -94,16 +195,37 @@ def draw_screen(ball, left_arrow, left_arrow_cords, right_arrow, right_arrow_cor
         SCREEN.blit(obs[0], obs[1])
 
     # Text stuff
-    score_text = game_font.render(f"Score: {int(score)}", False, BLACK_RGB)
+
+    # Left box number
+    left_obs_score = inside_box_font.render(f"{int(one_nine[ind_left])}", True, PINK_RGB)
+    SCREEN.blit(left_obs_score, (OBS_4_IMG.x+27,OBS_4_IMG.top+10))
+    
+    # Right box number
+    left_obs_score = inside_box_font.render(f"{int(one_nine[ind_right])}", True, PINK_RGB)
+    SCREEN.blit(left_obs_score, (OBS_5_IMG.x+27,OBS_5_IMG.top+10))
+
+    # General Score
+    score_text = score_font.render(f"Score: {int(score)}", False, BLACK_RGB)
     SCREEN.blit(score_text, (800,570))
+
+    global score_obs_list
+    score_obs_list = [(OBS_1_SCORE, 5), (OBS_2_SCORE, 5), (OBS_4, int(one_nine[ind_left])), (OBS_5, int(one_nine[ind_right]))]
+
     pygame.display.update()
     return (rect_left_arrow_1, rect_right_arrow_1)
 
 def main():
+    vx, vy = 6, 6
+    in_vx, in_vy = 6, 6
+    ball_v = (vx, vy)
+
+    main_menu()
+    score = 0
     ball = pygame.Rect(500, 500, 16, 16)
-    global vx, vy, score, rand_range
+    global rand_range
     clock = pygame.time.Clock()
     running = True
+    ind_left, ind_right = 0, 0
 
     # main loop
     while running:
@@ -143,10 +265,10 @@ def main():
             else:
                 vx = - round(math.sqrt(abs((in_vx ** 2 + in_vy ** 2) - vy ** 2)))
 
-        if ball.colliderect(draw_screen(ball, left_arrow, left_arrow_cords, right_arrow, right_arrow_cords)[0]): # colision with the left arrow
+        if ball.colliderect(draw_screen(ball, left_arrow, left_arrow_cords, right_arrow, right_arrow_cords, ind_left, ind_right, score)[0]): # colision with the left arrow
             vy = abs(vy)
 
-        if ball.colliderect(draw_screen(ball, left_arrow, left_arrow_cords, right_arrow, right_arrow_cords)[1]): # colision with the right arrow
+        if ball.colliderect(draw_screen(ball, left_arrow, left_arrow_cords, right_arrow, right_arrow_cords, ind_left, ind_right, score)[1]): # colision with the right arrow
             vy = abs(vy)
 
         # Colisões com obstáculos
@@ -166,7 +288,13 @@ def main():
         # Scores
         for obs in score_obs_list:
             if ball.colliderect(obs[0]):
-                score += obs[1] / 2
+                score += obs[1]
+                
+                if obs[0] == OBS_4:
+                    ind_left = functions.ind_plus_1_lap(one_nine, ind_left)
+
+                if obs[0] == OBS_5:
+                    ind_right = functions.ind_plus_1_lap(one_nine, ind_right)
 
         # Velocidades
         ball.x += vx
@@ -185,10 +313,7 @@ def main():
         
         # perder o jogo
         if ball.y >= 600:
-            running = False
-
-        print(vx,vy)
-    pygame.quit()
+            game_lost(score)
 
 if __name__ == '__main__':
     main()
