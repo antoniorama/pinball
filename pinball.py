@@ -1,6 +1,6 @@
 import pygame, math, random
 from functions import negative as negative
-import functions 
+import functions
 
 one_nine = ['1','2','3','4','5','6','7','8','9']
 
@@ -119,7 +119,7 @@ def main_menu():
 
 def game_lost(final_score_n):
     pygame.mixer.music.stop()
-    steel_ball_coords_play = (345,270)
+    steel_ball_coords_play = (220,270)
     steel_ball_coords_exit = (360,417)
     steel_ball_coords = steel_ball_coords_play
 
@@ -140,8 +140,8 @@ def game_lost(final_score_n):
         SCREEN.blit(final_score, (15,550))
 
         # Play Button
-        play_button = button_font.render(f"menu", True, PINK_RGB)
-        SCREEN.blit(play_button, (400,250))
+        play_button = button_font.render(f"play again", True, PINK_RGB)
+        SCREEN.blit(play_button, (275,250))
 
         # Exit Button
         exit_button = button_font.render(f"exit", True, PINK_RGB)
@@ -165,7 +165,8 @@ def game_lost(final_score_n):
 
         if (keys_pressed[pygame.K_RETURN] or keys_pressed[pygame.K_SPACE]) and steel_ball_coords == steel_ball_coords_exit:
             pygame.quit()
-        
+            break
+
         pygame.display.update()
 
 def draw_screen(ball, left_arrow, left_arrow_cords, right_arrow, right_arrow_cords, ind_left, ind_right, score):
@@ -199,7 +200,7 @@ def draw_screen(ball, left_arrow, left_arrow_cords, right_arrow, right_arrow_cor
     # Left box number
     left_obs_score = inside_box_font.render(f"{int(one_nine[ind_left])}", True, PINK_RGB)
     SCREEN.blit(left_obs_score, (OBS_4_IMG.x+27,OBS_4_IMG.top+10))
-    
+
     # Right box number
     left_obs_score = inside_box_font.render(f"{int(one_nine[ind_right])}", True, PINK_RGB)
     SCREEN.blit(left_obs_score, (OBS_5_IMG.x+27,OBS_5_IMG.top+10))
@@ -237,6 +238,8 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
 
+        # vy-=1
+
         # Arrow movement
         left_arrow, left_arrow_cords = LEFT_ARROW_1, (350,565)
         right_arrow, right_arrow_cords = RIGHT_ARROW_1, (550,565)
@@ -251,14 +254,14 @@ def main():
             right_arrow_cords = (550,540)
 
         # Colisões
-        if ball.left <= 60 or ball.right >= 1000-60: # colisão com a barra esquerda e a direita 
-            vx = vx*-1 + random.choice(rand_range)            
+        if ball.left <= 60 or ball.right >= 1000-60: # colisão com a barra esquerda e a direita
+            vx = vx*-1 + random.choice(rand_range)
             if vy > 0:
                 vy = round(math.sqrt(abs((in_vx ** 2 + in_vy ** 2) - vx ** 2)))
             else:
                 vy = - round(math.sqrt(abs((in_vx ** 2 + in_vy ** 2) - vx ** 2)))
 
-        if ball.top <= 25 or (ball.bottom >= 600-35 and (ball.right <= 350 or ball.left >= 600)): # colisão com o topo e chão 
+        if ball.top <= 25 or (ball.bottom >= 600-35 and (ball.right <= 350 or ball.left >= 600)): # colisão com o topo e chão
             vy = round(vy*-1 + random.choice(rand_range))
             if vx > 0:
                 vx = round(math.sqrt(abs((in_vx ** 2 + in_vy ** 2) - vy ** 2)))
@@ -274,12 +277,12 @@ def main():
         # Colisões com obstáculos
         for obs in obs_list_pink:
             if ball.colliderect(obs):
-                if (negative(vx) <= ball.right - obs.left <= abs(vx) or negative(vx) <= ball.left - obs.right <= abs(vx)):
+                if negative(vx) <= (ball.right - obs.left) <= abs(vx) or negative(vx) <= (ball.left - obs.right) <= abs(vx):
                     if vx < 0:
                         vx = abs(vx)
                     else:
                         vx = negative(vx)
-                else:
+                if negative(vy) <= (ball.top - obs.bottom) <= abs(vy) or negative(vy) <= (ball.bottom - obs.top) <= abs(vy):
                     if vy < 0:
                         vy = abs(vy)
                     else:
@@ -289,7 +292,7 @@ def main():
         for obs in score_obs_list:
             if ball.colliderect(obs[0]):
                 score += obs[1]
-                
+
                 if obs[0] == OBS_4:
                     ind_left = functions.ind_plus_1_lap(one_nine, ind_left)
 
@@ -310,10 +313,12 @@ def main():
                 vx, vy = in_vx, -in_vy
             else:
                 vx, vy = -in_vx, -in_vy
-        
+
         # perder o jogo
         if ball.y >= 600:
             game_lost(score)
 
 if __name__ == '__main__':
     main()
+
+
