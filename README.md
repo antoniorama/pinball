@@ -1,13 +1,11 @@
 # Projeto XXXX
-## FPRO/MIEIC, 2021/22
-## Fulano de Tal (up2021xxxxx)
-## 1MIEICXX
+## FPRO/LEIC, 2021/22
+## António Rama (up202108801)
+## 1LEIC12
 
 ### Objetivo
 
-1. Criar um clone do clássico Sokoban em Pygame...
-
-2. Em alternativa... do clássico x em Pygame.
+1. Criar uma versão do clássico pinball da atari 2600.
 
 ### Repositório de código
 
@@ -15,14 +13,13 @@
 
 ### Descrição
 
-*---É um jogo de puzzle em que o objetivo do jogo é empurrar caixotes para um sítio indicado. 
-Para empurrar o caixote é preciso ir ao outro lado empurrá-lo. 
-Ou seja, se ele ficar junto à parede, a pessoa precisa de reiniciar o jogo. Estamos a utilizar os níveis do XSokoban.---*
+*---É um jogo de puzzle em que o jogador manipula duas palhetas de modo a evitar que a bola caia
+na parte existente na parte inferior da área de jogo. A bola, quando entra em contacto com certos 
+objetos espalhados pela área de jogo, aumenta a pontuação do jogador. ---*
 
 ### UI
 
-![UI](ui.png)
-
+<img width="998" alt="imagem" src="https://user-images.githubusercontent.com/96125703/150325544-17e8871d-644e-4719-a881-420c2dd50d71.png">
 ### Pacotes
 
 - Pygame
